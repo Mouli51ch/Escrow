@@ -3,7 +3,15 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia",
+    "node": "hardhat node",
+    "clean": "hardhat clean",
+    "build": "hardhat compile && cd frontend && npm run build",
+    "dev": "cd frontend && npm run dev",
+    "start": "cd frontend && npm run start"
   },
   "keywords": [],
   "author": "",
