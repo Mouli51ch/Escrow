@@ -1,15 +1,18 @@
 "use client";
 import { ReactNode } from "react";
-import { WagmiConfig, createConfig, http } from "wagmi";
+import { WagmiConfig, createConfig, configureChains } from "wagmi";
 import { sepolia } from "wagmi/chains";
+import { publicProvider } from "wagmi/providers/public";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+const { chains, publicClient } = configureChains(
+  [sepolia],
+  [publicProvider()]
+);
+
 const config = createConfig({
-  chains: [sepolia],
-  transports: {
-    [sepolia.id]: http(),
-  },
-  ssr: true,
+  autoConnect: true,
+  publicClient,
 });
 
 const queryClient = new QueryClient();
