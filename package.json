@@ -9,7 +9,7 @@
     "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia",
     "node": "hardhat node",
     "clean": "hardhat clean",
-    "build": "hardhat compile && cd frontend && npm install && npm run build",
+    "build": "hardhat compile && cd frontend && npm install && npm install next && npm run build",
     "dev": "cd frontend && npm run dev",
     "start": "cd frontend && npm run start"
   },
