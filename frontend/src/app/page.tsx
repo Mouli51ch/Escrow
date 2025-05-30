@@ -17,6 +17,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [escrowInitialized, setEscrowInitialized] = useState(false);
+  const [initializedAmount, setInitializedAmount] = useState(''); // New state for initialized amount
 
   const validateForm = () => {
     if (!university) {
@@ -74,6 +75,7 @@ export default function Home() {
       setTxHash(tx.hash);
       setSuccess('Escrow initialized successfully!');
       setEscrowInitialized(true);
+      setInitializedAmount(amount); // Store the initialized amount for display
       
       // Reset form
       setUniversity('');
@@ -93,6 +95,13 @@ export default function Home() {
       return;
     }
 
+    // Validate amount before proceeding
+    const trimmedAmount = initializedAmount.trim();
+    if (parseFloat(trimmedAmount) <= 0) {
+      setError('Please enter a deposit amount greater than 0.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -101,16 +110,23 @@ export default function Home() {
       const provider = new ethers.providers.Web3Provider((window as any).ethereum);
       const signer = provider.getSigner();
       const contract = new ethers.Contract(TUITION_ESCROW_ADDRESS, TUITION_ESCROW_ABI, signer);
-      
-      const tx = await contract.deposit({ value: ethers.utils.parseEther(amount) });
-      
+      let value;
+      try {
+        value = ethers.utils.parseEther(trimmedAmount);
+        console.log('Deposit value (wei):', value.toString());
+      } catch (e) {
+        setError('Please enter a valid ETH amount.');
+        setLoading(false);
+        return;
+      }
+      const tx = await contract.deposit({ value });
       setSuccess('Deposit submitted! Waiting for confirmation...');
       await tx.wait();
       setTxHash(tx.hash);
       setSuccess('Deposit successful!');
       setEscrowInitialized(false);
     } catch (err: any) {
-      console.error(err);
+      console.error('Deposit error:', err);
       setError(err.message || 'Deposit failed');
     } finally {
       setLoading(false);
@@ -258,7 +274,7 @@ export default function Home() {
                 <h2 className="text-xl font-semibold text-blue-900 mb-4">Escrow Initialized</h2>
                 <div className="bg-white p-4 rounded-lg shadow-sm mb-4">
                   <p className="text-gray-600 mb-2">Please deposit the following amount:</p>
-                  <p className="text-2xl font-bold text-blue-600">{amount} ETH</p>
+                  <p className="text-2xl font-bold text-blue-600">{initializedAmount} ETH</p>
                 </div>
                 <button
                   onClick={handleDeposit}
